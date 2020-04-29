@@ -160,10 +160,18 @@ public class Dot : MonoBehaviour
 
                 yield return new WaitForSeconds(switchDelay);
                 board.currentDot = null;
-                board.currentState = Board.GameState.move;
+                board.currentState = GameState.move;
             }
             else
             {
+                if(board.endGame != null)
+                {
+                    if(board.endGame.requirements.gameType == GameType.Moves)
+                    {
+                        board.endGame.CountDown();
+                    }
+                }
+
                 board.DestoryMatches();
 
             }
@@ -178,7 +186,7 @@ public class Dot : MonoBehaviour
             hint.hintDelaySeconds = hint.hintDelay;
         }
 
-        if (board.currentState == Board.GameState.move)
+        if (board.currentState == GameState.move)
         {
             //get the position when the player starts the swipe
             firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -187,9 +195,10 @@ public class Dot : MonoBehaviour
 
     private void OnMouseUp()
     {
-        if (board.currentState == Board.GameState.move)
+        if (board.currentState == GameState.move)
         {
             finalTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            
             CalculateAngle();
         }
     }
@@ -198,14 +207,14 @@ public class Dot : MonoBehaviour
     {
         if (Mathf.Abs(finalTouchPosition.y - firstTouchPosition.y) > swipeResist || Mathf.Abs(finalTouchPosition.x - firstTouchPosition.x) > swipeResist)
         {
-            board.currentState = Board.GameState.wait;
+            board.currentState =GameState.wait;
             swipeAngle = Mathf.Atan2(finalTouchPosition.y - firstTouchPosition.y, finalTouchPosition.x - firstTouchPosition.x) * 180 / Mathf.PI;
             MovePiece();
             board.currentDot = this;
         }
         else
         {
-            board.currentState = Board.GameState.move;
+            board.currentState = GameState.move;
         }
     }
 
@@ -239,7 +248,7 @@ public class Dot : MonoBehaviour
         else
         {
             //set our board state to move
-            board.currentState = Board.GameState.move;
+            board.currentState = GameState.move;
         }
     }
 
@@ -277,7 +286,7 @@ public class Dot : MonoBehaviour
         else
         {
             //set the board state to move
-            board.currentState = Board.GameState.move;
+            board.currentState = GameState.move;
         }
     }
 

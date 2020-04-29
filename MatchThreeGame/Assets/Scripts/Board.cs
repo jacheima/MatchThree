@@ -2,11 +2,30 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum GameState
+{
+    wait, move, win, lose, pause
+}
 
+public enum TypeOfTile
+{
+    Breakable, Blank, Normal
+}
 
+[System.Serializable]
+public class TileType
+{
+    public int x;
+    public int y;
+    public TypeOfTile typeOfTile;
+}
 public class Board : MonoBehaviour
 {
-    
+    public float startDelay;
+
+    [Header("Level Information")]
+    public World world;
+    public int level;
 
     [Header("Background Tile Attributes")]
     public int columns; //width of board
@@ -44,34 +63,32 @@ public class Board : MonoBehaviour
 
     private float refillDelay = 0.5f;
 
+    public int[] scoreGoals;
     
 
     [Header("Managers")]
     private FindMatches findMatches;
-    private ScoreManager scoreManager;
+    public ScoreManager scoreManager;
     private AudioManager audioManager;
-    private GoalsManager goalsManager;
+    public GoalsManager goalsManager;
+    public UIManager uiManager;
+    public EndGame endGame;
 
-
-    public enum GameState
+    private void Awake()
     {
-        wait, move
+        if(world != null)
+        {
+            if(world.levels[level] != null)
+            {
+                columns = world.levels[level].columns;
+                rows = world.levels[level].rows;
+                boardLayout = world.levels[level].boardlayout;
+                dots = world.levels[level].dots;
+                scoreGoals = world.levels[level].scoreGoals;
+                
+            }
+        }
     }
-
-    public enum TypeOfTile
-    {
-        Breakable, Blank, Normal
-    }
-
-
-    [System.Serializable]
-    public class TileType
-    {
-        public int x;
-        public int y;
-        public TypeOfTile typeOfTile;
-    }
-
 
     private void Start()
     {
@@ -83,6 +100,9 @@ public class Board : MonoBehaviour
         scoreManager = FindObjectOfType<ScoreManager>();
         audioManager = FindObjectOfType<AudioManager>();
         goalsManager = FindObjectOfType<GoalsManager>();
+        uiManager = FindObjectOfType<UIManager>();
+        endGame = FindObjectOfType<EndGame>();
+        currentState = GameState.pause;
         SetUp();
     }
 

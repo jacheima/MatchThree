@@ -44,6 +44,7 @@ public class GoalsManager : MonoBehaviour
 
 
     [Header("Managers")]
+    public Board board;
     public UIManager uiManager;
     public ScoreManager scoreManager;
 
@@ -53,11 +54,27 @@ public class GoalsManager : MonoBehaviour
     {
         uiManager = GetComponent<UIManager>();
         scoreManager = GetComponent<ScoreManager>();
-
+        board = FindObjectOfType<Board>();
+        GetGoals();
         SetupMissionPanel();
         SetupLevelGoal();
 
 
+    }
+
+    private void GetGoals()
+    {
+        if(board != null)
+        {
+            if(board.world != null)
+            {
+                if(board.world.levels != null)
+                {
+                    levelGoals = board.world.levels[board.level].levelGoals;
+                    missionGoals = board.world.levels[board.level].missionGoals;
+                }
+            }
+        }
     }
 
     private void LateUpdate()
@@ -119,7 +136,7 @@ public class GoalsManager : MonoBehaviour
 
     void UpdateGoals()
     {
-        for(int i = 0; i < levelGoals.Length; i++)
+        for (int i = 0; i < levelGoals.Length; i++)
         {
             if ((levelGoals[i].numberNeeded - levelGoals[i].numberCollected) > 0)
             {
@@ -128,6 +145,11 @@ public class GoalsManager : MonoBehaviour
             else
             {
                 activeLevelGoals[i].goalText.text = 0.ToString();
+            }
+
+            if(goalsCompleted >= levelGoals.Length)
+            {
+                board.endGame.CheckWinOrLose();
             }
         }
     }
@@ -142,36 +164,29 @@ public class GoalsManager : MonoBehaviour
                 {
                     if (tagText == levelGoals[i].matchValue)
                     {
-                        if (levelGoals[i].numberCollected < levelGoals[i].numberNeeded)
-                        {
-                            levelGoals[i].numberCollected++;
-                        }
-                        else
+                        levelGoals[i].numberCollected++;
+
+                        if (IsGoalCompleted(i))
                         {
                             levelGoals[i].isCompleted = true;
                             goalsCompleted++;
                         }
                     }
                 }
-                else
-                {
-                    if (goalsCompleted >= levelGoals.Length)
-                    {
-                        YouWin();
-                    }
-                }
             }
         }
     }
 
-    public void YouWin()
+    private bool IsGoalCompleted(int levelgoal)
     {
-        Debug.Log("You Win");
-
-        uiManager.AddStars(uiManager.winPanel, starsCollected);
-        uiManager.AddScore(uiManager.winPanel, scoreManager.score, scoreManager.bestScore);
-
-        uiManager.winPanel.GetComponent<Win_Popup>().WinIsOpening();
+        if(levelGoals[levelgoal].numberCollected >= levelGoals[levelgoal].numberNeeded)
+        {
+            return true;
+        }
+        
+        return false;
     }
+
+    
 
 }

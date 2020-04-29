@@ -5,10 +5,12 @@ using UnityEngine;
 public class Mission_Popup : MonoBehaviour
 {
     private Animator anim;
+    public Board board;
 
     void Start()
     {
-        anim = GetComponent<Animator>();    
+        anim = GetComponent<Animator>();
+        board = FindObjectOfType<Board>();
     }
     public void OpenMissionPopup()
     {

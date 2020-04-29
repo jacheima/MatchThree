@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4293dcedb7c63ca4eaedc3e3290c3de6, type: 3}
+  m_Name: Level_1
+  m_EditorClassIdentifier: 
+  columns: 6
+  rows: 6
+  boardlayout: []
+  dots:
+  - {fileID: 4946053586643371861, guid: a936eeb1da07fbb4aa4a21fe24c925ff, type: 3}
+  - {fileID: 7822123783316767634, guid: 4c122b1a374f9f443ac4281f3f903fbf, type: 3}
+  - {fileID: 5747416896496657443, guid: 46acc4dd4fcf38440a5625edb1baecc7, type: 3}
+  - {fileID: 8237852224248253909, guid: 749738895e3359646aea5af24ece3cac, type: 3}
+  - {fileID: 1299079090639356222, guid: 2a0be8e902ce09847b690daf0c561c29, type: 3}
+  - {fileID: 981767845674146558, guid: 3b5c965356da2d848bf87f435b913e78, type: 3}
+  - {fileID: 4751178331078134780, guid: ca4052b81d6419b4c97da64d1087acf3, type: 3}
+  - {fileID: 5688780222937536111, guid: f1e60beff3b11624bbce5ac72a1f8fb2, type: 3}
+  - {fileID: 8972846987462607195, guid: f9cecd60df4c09141b05aba2e0854f1e, type: 3}
+  - {fileID: 804140169666546327, guid: ca5b95e1bb40fbc4bba1d2ba88159cc0, type: 3}
+  - {fileID: 4193617540915150652, guid: a7f94c1214dabac41a8c7ab29e13ab67, type: 3}
+  - {fileID: 8410360701556841621, guid: 1b07a1c69340dc249861897b834ec0b2, type: 3}
+  - {fileID: 7785147079735336926, guid: 79fbcb41b755be04a961509d7ae4f391, type: 3}
+  - {fileID: 6837622378089477277, guid: 6116ba842345d034ca3af91fd07be02e, type: 3}
+  - {fileID: 436267055057767819, guid: f8be925d77f3b4b4ebabb46b252a8693, type: 3}
+  - {fileID: 8395037842208709762, guid: cc65be1c4851a55408880e2ff782646d, type: 3}
+  - {fileID: 8024363207457735438, guid: d8e339eee956994459960d203e706895, type: 3}
+  - {fileID: 8256752011428774121, guid: 17326b0dbbe87d746a11005a315604fd, type: 3}
+  - {fileID: 5234620819085351656, guid: cef82da5a5ad64b4480774dafebf23bb, type: 3}
+  - {fileID: 4251989599986539337, guid: abb5f7bb810386146bdfba862f5a5039, type: 3}
+  - {fileID: 493101504978197922, guid: c5a58f500be5e8c46ab64796c070e418, type: 3}
+  - {fileID: 4118525106613694434, guid: 4cc8c8ca635df2a45b2516f617d8df9e, type: 3}
+  - {fileID: 1730765252505448652, guid: b9d1299ef8918ca4f8b158d0aaad33a0, type: 3}
+  - {fileID: 166390999850396894, guid: a37d03d181a085343a8df90654461097, type: 3}
+  scoreGoals: 640000009001000058020000
+  endGameRequirements:
+    gameType: 0
+    counterValue: 60
+  levelGoals:
+  - numberNeeded: 10
+    numberCollected: 0
+    goalSprite: {fileID: 21300000, guid: 644853aa51edb0e44b3676698b6bdca1, type: 3}
+    matchValue: Blue
+    goalText: 
+    isCompleted: 0
+  missionGoals:
+  - numberNeeded: 10
+    numberCollected: 0
+    goalSprite: {fileID: 21300000, guid: 644853aa51edb0e44b3676698b6bdca1, type: 3}
+    matchValue: Blue
+    goalText: Collect 10 Blue Donuts
+    isCompleted: 0
