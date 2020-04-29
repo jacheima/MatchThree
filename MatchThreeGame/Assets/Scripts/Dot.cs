@@ -47,6 +47,8 @@ public class Dot : MonoBehaviour
     private HintManager hint;
     private AudioManager audio;
 
+    float switchDelay = .5f;
+
 
     private void Start()
     {
@@ -141,7 +143,8 @@ public class Dot : MonoBehaviour
             findMatches.MatchPiecesOfColor(this.gameObject.tag);
             otherDot.GetComponent<Dot>().isMatched = true;
         }
-        yield return new WaitForSeconds(.5f);
+
+        yield return new WaitForSeconds(switchDelay);
 
         if (otherDot != null)
         {
@@ -155,7 +158,7 @@ public class Dot : MonoBehaviour
 
                 audio.PlaySwitchBack();
 
-                yield return new WaitForSeconds(.5f);
+                yield return new WaitForSeconds(switchDelay);
                 board.currentDot = null;
                 board.currentState = Board.GameState.move;
             }
@@ -169,19 +172,17 @@ public class Dot : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (hint != null)
+        {
+            hint.DestroyHint();
+            hint.hintDelaySeconds = hint.hintDelay;
+        }
+
         if (board.currentState == Board.GameState.move)
         {
             //get the position when the player starts the swipe
             firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         }
-
-        if(hint != null)
-        {
-            hint.DestroyHint();
-            hint.hintDelaySeconds = hint.hintDelay;
-        }
-       
-
     }
 
     private void OnMouseUp()
@@ -210,49 +211,74 @@ public class Dot : MonoBehaviour
 
     void MovePieces(Vector2 direction)
     {
-
+        //Set other dot to the dot in the direction we swiped
         otherDot = board.allDots[column + (int)direction.x, row + (int)direction.y];
+
+        //set the previous column and row to our current column and row
         previousColumn = column;
         previousRow = row;
 
+        //if the other dot exists
         if (otherDot != null)
         {
+            //set the other dots position to the opposite direction that we swiped
             otherDot.GetComponent<Dot>().column += -1 * (int)direction.x;
             otherDot.GetComponent<Dot>().row += -1 * (int)direction.y;
+
+            //set our position to the direction that we swiped
             column += (int)direction.x;
             row += (int)direction.y;
+
+            //play the swithch SFX
             audio.PlaySwitch();
+
+            //Check Moves
             StartCoroutine(CheckMoveCo());
         }
+        //if the other dot doesn't exist
         else
         {
+            //set our board state to move
             board.currentState = Board.GameState.move;
         }
     }
 
+    /// <summary>
+    /// Check the direction that we swiped
+    /// </summary>
     private void MovePiece()
     {
+        //if we swiped right
         if (swipeAngle > -45f && swipeAngle <= 45f && column < board.columns - 1)
         {
+            //move the piece to the right
             MovePieces(Vector2.right);
             
         }
+        //if we swiped up
         else if (swipeAngle > 45f && swipeAngle <= 135f && row < board.rows - 1)
         {
+            //move the piece up
             MovePieces(Vector2.up);
             
         }
+        //if we swiped left
         else if ((swipeAngle > 135f || swipeAngle <= -135f) && column > 0)
         {
+            //move out piece to the left
             MovePieces(Vector2.left);
         }
+        //if we swipped down
         else if (swipeAngle < -45f && swipeAngle >= -135f && row > 0)
         {
+            //move our piece down
             MovePieces(Vector2.down);
         }
-        board.currentState = Board.GameState.move;
-
-
+        else
+        {
+            //set the board state to move
+            board.currentState = Board.GameState.move;
+        }
     }
 
     public void MakeRowBomb()

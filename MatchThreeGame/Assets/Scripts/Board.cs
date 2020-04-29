@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class Board : MonoBehaviour
 {
-    private FindMatches findMatches;
+    
 
     [Header("Background Tile Attributes")]
     public int columns; //width of board
@@ -30,7 +30,7 @@ public class Board : MonoBehaviour
     public GameObject destroyEffect;
 
     public Dot currentDot;
-    public GameState currentState;
+    public GameState currentState = GameState.move;
 
 
     public TileType[] boardLayout;
@@ -38,13 +38,19 @@ public class Board : MonoBehaviour
     public GameObject breakableTilePrefab;
 
 
-    private ScoreManager scoreManager;
+    
     private int basePieceValue = 20;
     private int streakValue = 1;
 
-    private float refillDelay = 0.1f;
+    private float refillDelay = 0.5f;
 
+    
+
+    [Header("Managers")]
+    private FindMatches findMatches;
+    private ScoreManager scoreManager;
     private AudioManager audioManager;
+    private GoalsManager goalsManager;
 
 
     public enum GameState
@@ -76,6 +82,7 @@ public class Board : MonoBehaviour
         breakableTiles = new BackgroundTile[columns, rows];
         scoreManager = FindObjectOfType<ScoreManager>();
         audioManager = FindObjectOfType<AudioManager>();
+        goalsManager = FindObjectOfType<GoalsManager>();
         SetUp();
     }
 
@@ -159,7 +166,6 @@ public class Board : MonoBehaviour
 
     private bool MatchesAt(int column, int row, GameObject piece)
     {
-        Debug.Log(piece.name);
         if(piece != null)
         {
             if (column > 1 && row > 1)
@@ -230,7 +236,6 @@ public class Board : MonoBehaviour
                 {
                     numberVertical++;
                 }
-
             }
         }
 
@@ -336,6 +341,11 @@ public class Board : MonoBehaviour
 
             GameObject particle = Instantiate(destroyEffect, allDots[column, row].transform.position, Quaternion.identity);
             Destroy(particle, .3f);
+
+            if (goalsManager != null)
+            {
+                goalsManager.CompareGoal(allDots[column, row].tag);
+            }
             Destroy(allDots[column, row]);
             audioManager.PlayMatch();
             scoreManager.IncreaseScore(basePieceValue * streakValue);
@@ -357,9 +367,9 @@ public class Board : MonoBehaviour
         }
 
         findMatches.currentMatches.Clear();
-        StartCoroutine(DecreaseRowCo());
+        StartCoroutine(DecreaseRowCo2());
     }
-    private IEnumerator DecreaseRowCo()
+    private IEnumerator DecreaseRowCo2()
     {
         for (int i = 0; i < columns; i++)
         {
@@ -388,7 +398,7 @@ public class Board : MonoBehaviour
             }
         }
 
-        yield return new WaitForSeconds(refillDelay * .5f);
+        yield return new WaitForSeconds(refillDelay * 0.5f);
         StartCoroutine(FillBoard());
     }
 
@@ -402,16 +412,6 @@ public class Board : MonoBehaviour
                 {
                     Vector2 tempPos = new Vector2(i, j + refillOffset);
                     int dotToUse = Random.Range(0, dots.Length);
-
-                    int maxIterations = 0;
-
-                    while(MatchesAt(i, j, dots[dotToUse]) && maxIterations < 100)
-                    {
-                        maxIterations++;
-                        dotToUse = Random.Range(0, dots.Length);
-                    }
-
-                    maxIterations = 0;
 
                     GameObject piece = Instantiate(dots[dotToUse], tempPos, Quaternion.identity);
                     allDots[i, j] = piece;
@@ -447,12 +447,17 @@ public class Board : MonoBehaviour
         RefillBoard();
         yield return new WaitForSeconds(refillDelay);
 
-        while (MatchesOnBoard())
+        int maxIterations = 0;
+
+        while (MatchesOnBoard() && maxIterations < 100)
         {
             streakValue++;
-            DestoryMatches();
             yield return new WaitForSeconds(2 * refillDelay);
+            DestoryMatches();
+            
         }
+
+        maxIterations = 0;
 
         findMatches.currentMatches.Clear();
         currentDot = null;
@@ -461,8 +466,11 @@ public class Board : MonoBehaviour
 
         if (IsDeadLocked())
         {
-            ShuffleBoard();
+            StartCoroutine(ShuffleBoard());
         }
+
+        yield return new WaitForSeconds(refillDelay);
+
         currentState = GameState.move;
         streakValue = 1;
     }
@@ -564,7 +572,7 @@ public class Board : MonoBehaviour
         return true;
     }
 
-    private void ShuffleBoard()
+    private IEnumerator ShuffleBoard()
     {
         List<GameObject> boardPieces = new List<GameObject>();
 
@@ -579,6 +587,7 @@ public class Board : MonoBehaviour
             }
         }
 
+        yield return new WaitForSeconds(refillDelay);
         //for every spot on the board
         for (int i = 0; i < columns; i++)
         {
@@ -594,7 +603,7 @@ public class Board : MonoBehaviour
                     {
                         int maxIterations = 0;
 
-                        while (MatchesAt(i, j, boardPieces[pieceToUse]) && maxIterations < 500)
+                        while (MatchesAt(i, j, boardPieces[pieceToUse]) && maxIterations < 100)
                         {
                             pieceToUse = Random.Range(0, boardPieces.Count);
                             maxIterations++;
@@ -625,7 +634,7 @@ public class Board : MonoBehaviour
         //check if it's still deadlocked
         if(IsDeadLocked())
         {
-            ShuffleBoard();
+            StartCoroutine(ShuffleBoard());
             
         }
     }

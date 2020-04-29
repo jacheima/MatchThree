@@ -11,10 +11,11 @@ public class AudioManager : MonoBehaviour
     public AudioSource switchPiece;
     public AudioSource switchBack;
     public AudioSource boardShuffle;
+    public AudioSource uiButton;
     //TODO: Add functionality for these audio sources once I get
     //the functionality in
     public AudioSource star;
-    public AudioSource uiButton;
+    
     public AudioSource bonus;
 
     [Header("Music")]
@@ -58,5 +59,10 @@ public class AudioManager : MonoBehaviour
     public void PlayBoardShuffle()
     {
         boardShuffle.Play();
+    }
+
+    public void PlayButtonPress()
+    {
+        uiButton.Play();
     }
 }
