@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 [CreateAssetMenu(fileName = "World", menuName = "Level")]
 public class Level : ScriptableObject
@@ -22,6 +24,12 @@ public class Level : ScriptableObject
     public EndGameRequirements endGameRequirements;
     public BlankGoal[] levelGoals;
     public BlankGoal[] missionGoals;
+
+    [Header("Tutorial Attributes")]
+    public bool isTutorial;
+    public Steps[] steps;
+    public DotConfiguration dotConfiguration;
+
     
 
 }

@@ -7,14 +7,26 @@ public class HintManager : MonoBehaviour
     private Board board;
     public float hintDelay;
     public float hintDelaySeconds;
-    public GameObject hintParticle;
+    public GameObject hintSprite;
     public GameObject currentHint;
+    public Color hintColor;
+    public float alphaValue = 1;
+    public float fadeAmount = 0;
+    public float fadeDelay;
+    public float fadeDelaySeconds;
+
+    public Vector3 hintScale;
 
     // Start is called before the first frame update
     void Start()
     {
         board = FindObjectOfType<Board>();
         hintDelaySeconds = hintDelay;
+        fadeDelaySeconds = fadeDelay;
+        hintColor = hintSprite.GetComponent<SpriteRenderer>().color;
+        alphaValue = 1;
+
+        
     }
 
     // Update is called once per frame
@@ -22,11 +34,28 @@ public class HintManager : MonoBehaviour
     {
         hintDelaySeconds -= Time.deltaTime;
 
+        if(currentHint != null)
+        {
+
+            if (alphaValue > 0)
+            {
+                alphaValue -= fadeAmount * Time.deltaTime;
+                hintColor.a = alphaValue;
+                currentHint.GetComponent<SpriteRenderer>().color = hintColor;
+            }
+            else
+            {
+                DestroyHint();
+            }
+           
+        }
+     
         if(hintDelaySeconds <= 0 && currentHint == null)
         {
             MarkHint();
             hintDelaySeconds = hintDelay;
         }
+
     }
 
     //First, I want to find all possible matches on board
@@ -84,7 +113,11 @@ public class HintManager : MonoBehaviour
 
         if(move != null)
         {
-            currentHint = Instantiate(hintParticle, move.transform.position, Quaternion.identity);
+            currentHint = Instantiate(hintSprite, move.transform.position, Quaternion.identity);
+            currentHint.transform.parent = board.backgroundTiles[move.GetComponent<Dot>().column, move.GetComponent<Dot>().row].transform;
+            board.audioManager.hint.Play();
+
+            currentHint.transform.localScale = hintScale;
         }
     }
 
@@ -95,6 +128,8 @@ public class HintManager : MonoBehaviour
         {
             Destroy(currentHint);
             currentHint = null;
+            alphaValue = 1;
+            hintColor.a = alphaValue;
             hintDelaySeconds = hintDelay;
         }
     }

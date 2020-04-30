@@ -15,6 +15,9 @@ public class Dot : MonoBehaviour
     private Vector2 firstTouchPosition;
     private Vector2 finalTouchPosition;
 
+    [Header("Background Tiles")]
+    public GameObject backgroundTile;
+
     [Header("Input Attributes")]
     public float swipeAngle = 0;
     private float swipeResist = 1;
@@ -86,6 +89,7 @@ public class Dot : MonoBehaviour
             //move towards the target
             tempPos = new Vector2(targetX * board.tileHeight, transform.position.y);
             transform.position = Vector2.Lerp(transform.position, tempPos, .6f);
+
 
             if (board.allDots[column, row] != this.gameObject)
             {

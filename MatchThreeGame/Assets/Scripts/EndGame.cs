@@ -28,7 +28,7 @@ public class EndGame : MonoBehaviour
     private void Start()
     {
         board = FindObjectOfType<Board>();
-        currentCounterValue = requirements.counterValue;
+        SetUpRequirements();
         SetupGame();
     }
 
@@ -48,17 +48,20 @@ public class EndGame : MonoBehaviour
             }
         }
     }
+    void SetUpRequirements()
+    {
+        if (board.world != null)
+        {
+            if (board.world.levels[board.level] != null)
+            {
+                requirements = board.world.levels[board.level].endGameRequirements;
+                currentCounterValue = requirements.counterValue;
+            }
+        }
+    }
 
     void SetupGame()
     {
-        if(board.world != null)
-        {
-            if(board.world.levels[board.level] != null)
-            {
-                requirements = board.world.levels[board.level].endGameRequirements;
-            }
-        }
-
         if(requirements.gameType == GameType.Moves)
         {
             timerText.text = requirements.counterValue.ToString();
@@ -75,7 +78,15 @@ public class EndGame : MonoBehaviour
 
     public void StartGame()
     {
-        StartCoroutine(StartGameCo());
+        if(board.world.levels[board.level].isTutorial)
+        {
+            board.tutorial.StartTutorial();
+        }
+        else
+        {
+            StartCoroutine(StartGameCo());
+        }
+        
     }
 
     private IEnumerator StartGameCo()

@@ -64,14 +64,16 @@ public class GoalsManager : MonoBehaviour
 
     private void GetGoals()
     {
-        if(board != null)
+        if (board != null)
         {
-            if(board.world != null)
+            if (board.world != null)
             {
-                if(board.world.levels != null)
+                if (board.world.levels != null)
                 {
                     levelGoals = board.world.levels[board.level].levelGoals;
                     missionGoals = board.world.levels[board.level].missionGoals;
+
+
                 }
             }
         }
@@ -127,10 +129,6 @@ public class GoalsManager : MonoBehaviour
                 //add to a list of active level goals
                 activeLevelGoals.Add(info);
             }
-
-            Debug.Log(levelGoals.Length);
-
-            
         }
     }
 
@@ -147,7 +145,7 @@ public class GoalsManager : MonoBehaviour
                 activeLevelGoals[i].goalText.text = 0.ToString();
             }
 
-            if(goalsCompleted >= levelGoals.Length)
+            if (goalsCompleted >= levelGoals.Length)
             {
                 board.endGame.CheckWinOrLose();
             }
@@ -158,13 +156,19 @@ public class GoalsManager : MonoBehaviour
     {
         if (levelGoals != null)
         {
+
             for (int i = 0; i < levelGoals.Length; i++)
             {
-                if(!levelGoals[i].isCompleted)
+                if (!levelGoals[i].isCompleted)
                 {
+                    Debug.Log("This goal is not yet complete!");
                     if (tagText == levelGoals[i].matchValue)
                     {
+                        Debug.Log("Collected Some Blues");
+
                         levelGoals[i].numberCollected++;
+
+
 
                         if (IsGoalCompleted(i))
                         {
@@ -179,14 +183,14 @@ public class GoalsManager : MonoBehaviour
 
     private bool IsGoalCompleted(int levelgoal)
     {
-        if(levelGoals[levelgoal].numberCollected >= levelGoals[levelgoal].numberNeeded)
+        if (levelGoals[levelgoal].numberCollected >= levelGoals[levelgoal].numberNeeded)
         {
             return true;
         }
-        
+
         return false;
     }
 
-    
+
 
 }

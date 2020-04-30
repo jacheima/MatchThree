@@ -55,37 +55,45 @@ public class Board : MonoBehaviour
     public TileType[] boardLayout;
     private BackgroundTile[,] breakableTiles;
     public GameObject breakableTilePrefab;
+    public GameObject[,] backgroundTiles;
 
 
-    
+
     private int basePieceValue = 20;
     private int streakValue = 1;
 
-    private float refillDelay = 0.5f;
+    private float refillDelay = 0.1f;
 
     public int[] scoreGoals;
-    
+
+    int dotNumber;
+
+    public bool isTutorialLevel;
+
 
     [Header("Managers")]
     private FindMatches findMatches;
     public ScoreManager scoreManager;
-    private AudioManager audioManager;
+    public AudioManager audioManager;
     public GoalsManager goalsManager;
     public UIManager uiManager;
+    public HintManager hintManager;
     public EndGame endGame;
+    public Tutorial tutorial;
 
     private void Awake()
     {
-        if(world != null)
+        if (world != null)
         {
-            if(world.levels[level] != null)
+            if (world.levels[level] != null)
             {
                 columns = world.levels[level].columns;
                 rows = world.levels[level].rows;
                 boardLayout = world.levels[level].boardlayout;
                 dots = world.levels[level].dots;
                 scoreGoals = world.levels[level].scoreGoals;
-                
+                isTutorialLevel = world.levels[level].isTutorial;
+
             }
         }
     }
@@ -94,6 +102,7 @@ public class Board : MonoBehaviour
     {
         blankSpaces = new bool[columns, rows];
         allDots = new GameObject[columns, rows];
+        backgroundTiles = new GameObject[columns, rows];
         findMatches = FindObjectOfType<FindMatches>();
         currentState = GameState.move;
         breakableTiles = new BackgroundTile[columns, rows];
@@ -101,8 +110,11 @@ public class Board : MonoBehaviour
         audioManager = FindObjectOfType<AudioManager>();
         goalsManager = FindObjectOfType<GoalsManager>();
         uiManager = FindObjectOfType<UIManager>();
+        hintManager = FindObjectOfType<HintManager>();
         endGame = FindObjectOfType<EndGame>();
         currentState = GameState.pause;
+        tutorial = FindObjectOfType<Tutorial>();
+        dotNumber = 0;
         SetUp();
     }
 
@@ -132,10 +144,13 @@ public class Board : MonoBehaviour
             }
         }
     }
+
+
     private void SetUp()
     {
         GenerateBlankSpaces();
         GenerateBreakableTiles();
+
 
         for (int i = 0; i < columns; i++)
         {
@@ -144,7 +159,7 @@ public class Board : MonoBehaviour
                 if (!blankSpaces[i, j])
                 {
                     //-----------------------Laying Out Background Tiles-------------------------
-                    Vector2 tempPostion = new Vector2((i + xOffset) * tileWidth, (j + yOffset)* tileHeight);
+                    Vector2 tempPostion = new Vector2((i + xOffset) * tileWidth, (j + yOffset) * tileHeight);
                     //instatiate a new tile
                     GameObject tile = Instantiate(tilePrefab, tempPostion, Quaternion.identity);
 
@@ -154,39 +169,64 @@ public class Board : MonoBehaviour
                     //name the tile based off its column, row
                     tile.name = "(" + i + ", " + j + ")";
 
+                    backgroundTiles[i, j] = tile;
+
+
 
                     //------------------------Laying out Dots on Background Tiles-------------------------
                     //choose a random dot to use
-                    int dotToUse = Random.Range(0, dots.Length);
 
-                    int maxIterations = 0;
 
-                    while (MatchesAt(i, j, dots[dotToUse]) && maxIterations < 100)
+                    if (!tutorial.IsTutoral())
                     {
-                        dotToUse = Random.Range(0, dots.Length);
-                        maxIterations++;
+                        int dotToUse = Random.Range(0, dots.Length);
+
+                        int maxIterations = 0;
+
+                        while (MatchesAt(i, j, dots[dotToUse]) && maxIterations < 100)
+                        {
+                            dotToUse = Random.Range(0, dots.Length);
+                            maxIterations++;
+                        }
+
+                        maxIterations = 0;
+
+
+                        //instante the chosen dot on the background tile
+                        GameObject dot = Instantiate(dots[dotToUse], tempPostion, Quaternion.identity);
+                        dot.GetComponent<Dot>().row = j;
+                        dot.GetComponent<Dot>().column = i;
+                        //name the dot
+                        dot.name = "Dot(" + i + ", " + j + ")";
+
+                        allDots[i, j] = dot;
+
+           
                     }
+                    else
+                    {
+                        //instante the chosen dot on the background tile
+                        GameObject dot = Instantiate(world.levels[level].dotConfiguration.dotOrder[dotNumber], tempPostion, Quaternion.identity);
+                        dot.GetComponent<Dot>().row = j;
+                        dot.GetComponent<Dot>().column = i;
+                        //name the dot
+                        dot.name = "Dot(" + i + ", " + j + ")";
 
-                    maxIterations = 0;
+                        dotNumber++;
 
-                    //instante the chosen dot on the background tile
-                    GameObject dot = Instantiate(dots[dotToUse], tempPostion, Quaternion.identity);
-                    dot.GetComponent<Dot>().row = j;
-                    dot.GetComponent<Dot>().column = i;
-                    dot.transform.parent = GameObject.Find("Dots").transform;
-
-                    //name the dot
-                    dot.name = "Dot" + tile.name;
-
-                    allDots[i, j] = dot;
+                        allDots[i, j] = dot;
+                    }
                 }
             }
         }
+
+
     }
+
 
     private bool MatchesAt(int column, int row, GameObject piece)
     {
-        if(piece != null)
+        if (piece != null)
         {
             if (column > 1 && row > 1)
             {
@@ -369,6 +409,12 @@ public class Board : MonoBehaviour
             Destroy(allDots[column, row]);
             audioManager.PlayMatch();
             scoreManager.IncreaseScore(basePieceValue * streakValue);
+            if(isTutorialLevel)
+            {
+                tutorial.DestroyHighlights();
+                tutorial.NextStep();
+            }
+            
             allDots[column, row] = null;
         }
     }
@@ -474,7 +520,7 @@ public class Board : MonoBehaviour
             streakValue++;
             yield return new WaitForSeconds(2 * refillDelay);
             DestoryMatches();
-            
+
         }
 
         maxIterations = 0;
@@ -491,8 +537,11 @@ public class Board : MonoBehaviour
 
         yield return new WaitForSeconds(refillDelay);
 
-        currentState = GameState.move;
-        streakValue = 1;
+        if (!MatchesOnBoard())
+        {
+            currentState = GameState.move;
+            streakValue = 1; 
+        }
     }
 
     private void SwitchPieces(int col, int row, Vector2 direction)
@@ -619,7 +668,7 @@ public class Board : MonoBehaviour
                     //pick a random number
                     int pieceToUse = Random.Range(0, boardPieces.Count);
 
-                    if(boardPieces[pieceToUse] != null)
+                    if (boardPieces[pieceToUse] != null)
                     {
                         int maxIterations = 0;
 
@@ -649,13 +698,13 @@ public class Board : MonoBehaviour
 
             }
         }
- 
+
 
         //check if it's still deadlocked
-        if(IsDeadLocked())
+        if (IsDeadLocked())
         {
             StartCoroutine(ShuffleBoard());
-            
+
         }
     }
 }

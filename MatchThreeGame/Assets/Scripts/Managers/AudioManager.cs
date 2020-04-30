@@ -12,6 +12,7 @@ public class AudioManager : MonoBehaviour
     public AudioSource switchBack;
     public AudioSource boardShuffle;
     public AudioSource uiButton;
+    public AudioSource hint;
     //TODO: Add functionality for these audio sources once I get
     //the functionality in
     public AudioSource star;
