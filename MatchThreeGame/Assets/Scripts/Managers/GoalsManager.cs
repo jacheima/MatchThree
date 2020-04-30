@@ -72,8 +72,6 @@ public class GoalsManager : MonoBehaviour
                 {
                     levelGoals = board.world.levels[board.level].levelGoals;
                     missionGoals = board.world.levels[board.level].missionGoals;
-
-
                 }
             }
         }
@@ -99,8 +97,8 @@ public class GoalsManager : MonoBehaviour
 
                 //populate the goal with the correct sprite & text
                 GoalInfo info = levelGoal.GetComponent<GoalInfo>();
-                info.goalSprite = missionGoals[i].goalSprite;
-                info.goalString = missionGoals[i].goalText;
+                info.goalSprite = board.world.levels[board.level].missionGoals[i].goalSprite;
+                info.goalString = board.world.levels[board.level].missionGoals[i].goalText;
 
                 //add the mission goal info to a list of active mission goal 
                 activeMissionGoals.Add(info);
@@ -123,8 +121,8 @@ public class GoalsManager : MonoBehaviour
 
                 //populate the goal with the correct sprite & text
                 GoalInfo info = levelGoal.GetComponent<GoalInfo>();
-                info.goalSprite = levelGoals[i].goalSprite;
-                info.goalString = levelGoals[i].numberCollected.ToString();
+                info.goalSprite = board.world.levels[board.level].levelGoals[i].goalSprite;
+                info.goalString = board.world.levels[board.level].levelGoals[i].numberCollected.ToString();
 
                 //add to a list of active level goals
                 activeLevelGoals.Add(info);
@@ -134,18 +132,18 @@ public class GoalsManager : MonoBehaviour
 
     void UpdateGoals()
     {
-        for (int i = 0; i < levelGoals.Length; i++)
+        for (int i = 0; i < board.world.levels[board.level].levelGoals.Length; i++)
         {
-            if ((levelGoals[i].numberNeeded - levelGoals[i].numberCollected) > 0)
+            if ((board.world.levels[board.level].levelGoals[i].numberNeeded - board.world.levels[board.level].levelGoals[i].numberCollected) > 0)
             {
-                activeLevelGoals[i].goalText.text = (levelGoals[i].numberNeeded - levelGoals[i].numberCollected).ToString();
+                activeLevelGoals[i].goalText.text = (board.world.levels[board.level].levelGoals[i].numberNeeded - board.world.levels[board.level].levelGoals[i].numberCollected).ToString();
             }
             else
             {
                 activeLevelGoals[i].goalText.text = 0.ToString();
             }
 
-            if (goalsCompleted >= levelGoals.Length)
+            if (goalsCompleted == board.world.levels[board.level].levelGoals.Length)
             {
                 board.endGame.CheckWinOrLose();
             }
@@ -154,25 +152,23 @@ public class GoalsManager : MonoBehaviour
 
     public void CompareGoal(string tagText)
     {
-        if (levelGoals != null)
+        if (board.world.levels[board.level].levelGoals != null)
         {
 
             for (int i = 0; i < levelGoals.Length; i++)
             {
-                if (!levelGoals[i].isCompleted)
+                if (!board.world.levels[board.level].levelGoals[i].isCompleted)
                 {
                     Debug.Log("This goal is not yet complete!");
-                    if (tagText == levelGoals[i].matchValue)
+                    if (tagText == board.world.levels[board.level].levelGoals[i].matchValue)
                     {
                         Debug.Log("Collected Some Blues");
 
-                        levelGoals[i].numberCollected++;
-
-
-
+                        board.world.levels[board.level].levelGoals[i].numberCollected++;
                         if (IsGoalCompleted(i))
                         {
-                            levelGoals[i].isCompleted = true;
+                            Debug.Log(IsGoalCompleted(i));
+                            board.world.levels[board.level].levelGoals[i].isCompleted = true;
                             goalsCompleted++;
                         }
                     }
@@ -183,7 +179,7 @@ public class GoalsManager : MonoBehaviour
 
     private bool IsGoalCompleted(int levelgoal)
     {
-        if (levelGoals[levelgoal].numberCollected >= levelGoals[levelgoal].numberNeeded)
+        if (board.world.levels[board.level].levelGoals[levelgoal].numberCollected >= board.world.levels[board.level].levelGoals[levelgoal].numberNeeded)
         {
             return true;
         }

@@ -1,26 +1,29 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class Steps
 {
     public string instruction;
-    public GameObject indicator;
+    public HighlightPieces[] piecesToHighlight;
+    public HighlightGoals[] goalsToHighlight;
+    public bool isComplete;
 }
 
 [System.Serializable]
 public class DotConfiguration
 {
     public GameObject[] dotOrder;
-    public HighlightPieces[] piecesToHighlight;
-    public HighlightGoals[] goalsToHighlight;
+
 
 }
 
 [System.Serializable]
 public class HighlightGoals
 {
+    public GameObject indicator;
     public Vector3 highlightScale;
 }
 
@@ -29,6 +32,7 @@ public class HighlightPieces
 {
     public int column;
     public int row;
+    public GameObject indicator;
     public Vector3 highlightScale;
 }
 
@@ -46,6 +50,7 @@ public class Tutorial : MonoBehaviour
     public float goalsIndicatorTimeDelaySeconds;
 
     public List<GameObject> highlightsOnBoard;
+    public List<Steps> completedSteps;
 
     public float tutorialDelay;
     public float goalDelay;
@@ -53,8 +58,9 @@ public class Tutorial : MonoBehaviour
     private void Start()
     {
         board = FindObjectOfType<Board>();
-        currentStep = 0;
         goalsIndicatorTimerDelay = goalDelay;
+
+        currentStep = 0;
 
         SetupTutorial();
 
@@ -63,16 +69,16 @@ public class Tutorial : MonoBehaviour
     {
         goalsIndicatorTimeDelaySeconds -= Time.deltaTime;
 
-        if(indicatorObject != null)
+        if (indicatorObject != null)
         {
-           if(goalsIndicatorTimeDelaySeconds <= 0)
+            if (goalsIndicatorTimeDelaySeconds <= 0)
             {
                 DestroyHighlights();
                 goalsIndicatorTimeDelaySeconds = goalsIndicatorTimerDelay;
             }
         }
 
-        if (currentStep == steps.Length)
+        if (completedSteps.Count == steps.Length)
         {
             board.isTutorialLevel = false;
         }
@@ -83,7 +89,6 @@ public class Tutorial : MonoBehaviour
 
         steps = board.world.levels[board.level].steps;
         dotConfig = board.world.levels[board.level].dotConfiguration;
-        indicatorObject = steps[currentStep].indicator;
 
     }
 
@@ -91,28 +96,38 @@ public class Tutorial : MonoBehaviour
     {
         StartCoroutine(StartTutorialCo());
         
+
     }
 
     public IEnumerator StartTutorialCo()
     {
         yield return new WaitForSeconds(tutorialDelay);
-
+        board.currentState = GameState.move;
         //turn on the tutorial panel
         //TODO: Change this to animation
         board.uiManager.tutorialPanel.SetActive(true);
 
-        Debug.Log(currentStep);
-
-        //set the instructions
-        board.uiManager.tutorialTextText.text = steps[currentStep].instruction;
-        indicatorObject = steps[currentStep].indicator;
-
-        if(currentStep + 1 < steps.Length)
+        if (!steps[currentStep].isComplete)
         {
-            currentStep++;
-        }
+            board.uiManager.tutorialTextText.text = steps[currentStep].instruction;
 
-        HighlightPieces();
+            if (board.world.levels[board.level].steps[currentStep].piecesToHighlight != null)
+            {
+                HighlightPieces();
+            }
+
+            if (board.world.levels[board.level].steps[currentStep].goalsToHighlight != null)
+            {
+                HighlightGoals();
+            }
+        }
+        else
+        {
+            if(currentStep >= board.world.levels[board.level].steps.Length)
+            {
+                board.isTutorialLevel = false;
+            }
+        }
 
     }
 
@@ -122,54 +137,99 @@ public class Tutorial : MonoBehaviour
         board.world.levels[board.level].isTutorial = false;
         board.endGame.StartGame();
     }
+    void HighlightGoals()
+    {
+        if (board != null)
+        {
+            if (board.world != null)
+            {
+                if (board.world.levels != null)
+                {
+                    //has this step already been completed?
+                    if (!board.world.levels[board.level].steps[currentStep].isComplete)
+                    {
+                        //do we need to highlight any board pieces?
+                        if (board.world.levels[board.level].steps[currentStep].piecesToHighlight != null)
+                        {
+                            highlightsOnBoard.Clear();
+
+                            // do we need to highlight any goals?
+                            if (board.world.levels[board.level].steps[currentStep].goalsToHighlight != null)
+                            {
+                                highlightsOnBoard.Clear();
+
+                                for (int i = 0; i < board.world.levels[board.level].steps[currentStep].goalsToHighlight.Length; i++)
+                                {
+                                    //get highlight prefab
+                                    Image screenOverlay = board.world.levels[board.level].steps[currentStep].goalsToHighlight[i].indicator.GetComponent<Image>();
+
+                                    //get canvas you want to put it on
+                                    GameObject holder = GameObject.Find("Highlight_Holder");
+
+                                    //put the highlight on the screen
+                                    GameObject overlay = Instantiate(screenOverlay.gameObject, holder.transform.position, Quaternion.identity);
+                                    
+                                    overlay.transform.SetParent(holder.transform);
+
+                                    overlay.transform.localScale = board.world.levels[board.level].steps[currentStep].goalsToHighlight[i].highlightScale;
+
+
+                                    screenOverlay.rectTransform.position = new Vector3(0f, 0f, 0f);
+
+
+                                    highlightsOnBoard.Add(screenOverlay.gameObject);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     void HighlightPieces()
     {
-        //do we need to highlight board pieces?
-
-        //if dotConfig is not empty
-        if(dotConfig != null)
+        if (board != null)
         {
-            //do we need to highlight any pieces on the baord
-            if(dotConfig.piecesToHighlight != null)
+            if (board.world != null)
             {
-                //foreach piece we need to highligh
-                for (int i = 0; i <dotConfig.piecesToHighlight.Length; i++)
+                if (board.world.levels != null)
                 {
-                    //instantiate the highlight indicator on the 
-                    GameObject highLight = Instantiate(indicatorObject, board.backgroundTiles[dotConfig.piecesToHighlight[i].column, dotConfig.piecesToHighlight[i].row].transform.position, Quaternion.identity);
-                    highLight.transform.parent = board.backgroundTiles[dotConfig.piecesToHighlight[i].column, dotConfig.piecesToHighlight[i].row].transform;
+                    //has this step already been completed?
+                    if (!board.world.levels[board.level].steps[currentStep].isComplete)
+                    {
+                        //do we need to highlight any board pieces?
+                        if (board.world.levels[board.level].steps[currentStep].piecesToHighlight != null)
+                        {
+                            highlightsOnBoard.Clear();
 
-                    highLight.transform.localScale = dotConfig.piecesToHighlight[i].highlightScale;
+                            //for each piece we need to highlight
+                            for (int i = 0; i < board.world.levels[board.level].steps[currentStep].piecesToHighlight.Length; i++)
+                            {
+                                //get the location of the baord that needs to be highlighted
+                                int column = board.world.levels[board.level].steps[currentStep].piecesToHighlight[i].column;
+                                int row = board.world.levels[board.level].steps[currentStep].piecesToHighlight[i].row;
 
-                    highlightsOnBoard.Add(highLight);
+                                //get the highlight prefab
+                                GameObject highlightPrefab = board.world.levels[board.level].steps[currentStep].piecesToHighlight[i].indicator;
+
+                                //Put the highlight on the baord
+                                GameObject highlight = Instantiate(highlightPrefab, board.backgroundTiles[column, row].transform.position, Quaternion.identity);
+                                highlight.transform.parent = board.backgroundTiles[column, row].transform;
+                                highlight.transform.localScale = board.world.levels[board.level].steps[currentStep].piecesToHighlight[i].highlightScale;
+
+                                highlightsOnBoard.Add(highlight);
+                            }
+                        }
+                    }
                 }
             }
-            
-            //do we need to highlight any goals?
-            if(dotConfig.goalsToHighlight != null)
-            {
-                for(int i = 0; i < dotConfig.goalsToHighlight.Length; i++)
-                {
-                    //instantiate the highlight indicator on the 
-                    GameObject levelGoals = GameObject.Find("LevelGoals");
-                    GameObject highLight = Instantiate(indicatorObject, levelGoals.transform.position, Quaternion.identity);
-                    highLight.transform.parent = levelGoals.transform;
-
-                    highLight.transform.localScale = dotConfig.goalsToHighlight[i].highlightScale;
-
-                    highlightsOnBoard.Add(highLight);
-
-                    goalsIndicatorTimerDelay = goalDelay;
-                }
-            }
-        } 
-        
+        }
     }
 
     public void DestroyHighlights()
     {
-        for(int i = 0; i < highlightsOnBoard.Count; i++)
+        for (int i = 0; i < highlightsOnBoard.Count; i++)
         {
             Destroy(highlightsOnBoard[i]);
             highlightsOnBoard[i] = null;
@@ -178,7 +238,21 @@ public class Tutorial : MonoBehaviour
 
     public void NextStep()
     {
-        StartTutorial();
+        CloseTutorialPanel();
+
+        if (currentStep < board.world.levels[board.level].steps.Length - 1)
+        {
+            board.isTutorialLevel = true;
+            board.world.levels[board.level].steps[currentStep].isComplete = true;
+            completedSteps.Add(board.world.levels[board.level].steps[currentStep]);
+            currentStep++;
+
+            StartTutorial();
+        }
+        else
+        {
+            board.isTutorialLevel = false;
+        }
 
     }
 

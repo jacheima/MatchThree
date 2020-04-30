@@ -32,7 +32,6 @@ MonoBehaviour:
   - {fileID: 8972846987462607195, guid: f9cecd60df4c09141b05aba2e0854f1e, type: 3}
   - {fileID: 8024363207457735438, guid: d8e339eee956994459960d203e706895, type: 3}
   - {fileID: 493101504978197922, guid: c5a58f500be5e8c46ab64796c070e418, type: 3}
-  - {fileID: 4946053586643371861, guid: a936eeb1da07fbb4aa4a21fe24c925ff, type: 3}
   scoreGoals: 640000009001000058020000
   endGameRequirements:
     gameType: 0
@@ -43,7 +42,7 @@ MonoBehaviour:
     goalSprite: {fileID: 21300000, guid: c41eea3901a9ce34d96a3a146aa5c286, type: 3}
     matchValue: Blue
     goalText: 
-    isCompleted: 0
+    isCompleted: 1
   missionGoals:
   - numberNeeded: 16
     numberCollected: 0
@@ -54,11 +53,31 @@ MonoBehaviour:
   isTutorial: 0
   steps:
   - instruction: Match three pieces of the same color by swapping adjacent pieces.
-    indicator: {fileID: 2147991477615679384, guid: eaf17152a857ce344bfadaea4c8d69a7,
-      type: 3}
+    piecesToHighlight:
+    - column: 4
+      row: 2
+      indicator: {fileID: 2147991477615679384, guid: eaf17152a857ce344bfadaea4c8d69a7,
+        type: 3}
+      highlightScale: {x: 3.5, y: 3.7, z: 0}
+    - column: 5
+      row: 3
+      indicator: {fileID: 2147991477615679384, guid: eaf17152a857ce344bfadaea4c8d69a7,
+        type: 3}
+      highlightScale: {x: 3.5, y: 3.7, z: 0}
+    - column: 4
+      row: 4
+      indicator: {fileID: 2147991477615679384, guid: eaf17152a857ce344bfadaea4c8d69a7,
+        type: 3}
+      highlightScale: {x: 3.5, y: 3.7, z: 0}
+    goalsToHighlight: []
+    isComplete: 1
   - instruction: Keep making matches to collect all the pieces.
-    indicator: {fileID: 4774701097179104658, guid: 9a80a91291c5f5f44b8cf81faf982bfb,
-      type: 3}
+    piecesToHighlight: []
+    goalsToHighlight:
+    - indicator: {fileID: 8536366884919124744, guid: 2005c7c67b47b8742bfbbeb6bbaede66,
+        type: 3}
+      highlightScale: {x: 1, y: 1, z: 1}
+    isComplete: 0
   dotConfiguration:
     dotOrder:
     - {fileID: 8024363207457735438, guid: d8e339eee956994459960d203e706895, type: 3}
@@ -106,15 +125,3 @@ MonoBehaviour:
     - {fileID: 493101504978197922, guid: c5a58f500be5e8c46ab64796c070e418, type: 3}
     - {fileID: 8972846987462607195, guid: f9cecd60df4c09141b05aba2e0854f1e, type: 3}
     - {fileID: 493101504978197922, guid: c5a58f500be5e8c46ab64796c070e418, type: 3}
-    piecesToHighlight:
-    - column: 4
-      row: 2
-      highlightScale: {x: 1, y: 1, z: 1}
-    - column: 5
-      row: 3
-      highlightScale: {x: 1, y: 1, z: 1}
-    - column: 4
-      row: 4
-      highlightScale: {x: 1, y: 1, z: 1}
-    goalsToHighlight:
-    - highlightScale: {x: 1, y: 1, z: 1}

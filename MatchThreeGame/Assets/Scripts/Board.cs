@@ -409,12 +409,8 @@ public class Board : MonoBehaviour
             Destroy(allDots[column, row]);
             audioManager.PlayMatch();
             scoreManager.IncreaseScore(basePieceValue * streakValue);
-            if(isTutorialLevel)
-            {
-                tutorial.DestroyHighlights();
-                tutorial.NextStep();
-            }
-            
+
+
             allDots[column, row] = null;
         }
     }

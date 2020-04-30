@@ -195,6 +195,7 @@ public class Dot : MonoBehaviour
             //get the position when the player starts the swipe
             firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         }
+
     }
 
     private void OnMouseUp()
@@ -244,6 +245,18 @@ public class Dot : MonoBehaviour
 
             //play the swithch SFX
             audio.PlaySwitch();
+
+            if (board.isTutorialLevel)
+            {
+                
+
+                for (int count = 0; count < board.tutorial.highlightsOnBoard.Count; count++)
+                {
+                    Destroy(board.tutorial.highlightsOnBoard[count]);
+                }
+
+                board.tutorial.NextStep();
+            }
 
             //Check Moves
             StartCoroutine(CheckMoveCo());
